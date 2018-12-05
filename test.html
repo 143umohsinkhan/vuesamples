@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<link
+  rel="stylesheet"
+  href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+  integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+  crossorigin="anonymous"
+/>
+<style>
+  [v-cloak] {
+    display: none;
+  }
+  .tableappear-leave-to,
+  .tableappear-enter {
+    transform: translateX(150px) rotate(30deg);
+    opacity: 0;
+  }
+  .tableappear-enter-active,
+  .tableappear-leave-active {
+    transition: all 0.5s ease;
+  }
+
+  .listtrans-enter-active,
+  .listtrans-leave-active {
+    transition: all 1s, linear;
+  }
+
+  .listtrans-leave-to,
+  .listtrans-enter {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+</style>
+
+<div id="app">
+  <div class="container">
+    <form class="mt-20">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          v-model="email"
+          class="form-control form-control-lg"
+        />
+      </div>
+      <button class="btn btn-primary" @click.prevent="process" type="submit">
+        Submit
+      </button>
+    </form>
+  </div>
+  <transition name="tableappear">
+    <div class="card mt50" v-if="showImage">
+      <table class="table">
+        <thead class="thead-light">
+          <th>#</th>
+          <th>Name</th>
+          <th>Approachable date</th>
+          <th>Miss Match</th>
+          <th>Remove</th>
+        </thead>
+        <tbody name="listtrans" is="transition-group" v-cloak>
+          <tr
+            v-for="(a,index) in approachObject"
+            :key="a.neo_reference_id"
+            :style="getRowStyle(a)"
+            style="color:green"
+          >
+            <td>{{ index + 1 }}</td>
+            <td>{{ a.name }}</td>
+            <td>{{ getCloseApproachDate(a) }}</td>
+            <td>
+              <ul v-if="a.close_approach_data.length>0">
+                <div
+                  v-for="(value,key) in a.close_approach_data[0].miss_distance"
+                >
+                  <li>{{ value }}: {{ key }}</li>
+                </div>
+              </ul>
+            </td>
+            <td>
+              <button @click="removeItem(index)" class="btn btn-warning">
+                remove
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </transition>
+  <div class="mt-40 container"><img :src="imagUrl" :title="imgTitle" /></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+  var vm = new Vue({
+    el: "#app",
+    data: {
+      email: "mohsin.khan.jaipur@live.com",
+      imagUrl: "",
+      imgTitle: "",
+      approachObject: [],
+      showImage: false
+    },
+    created: function() {
+      this.fetchData();
+      this.getApproachablesObjects();
+    },
+    methods: {
+      process: function() {
+        // alert("Submited " + this.email);
+        vm.showImage = !vm.showImage;
+      },
+      removeItem: function(index) {
+        this.approachObject.splice(index, 1);
+      },
+      getRowStyle: function(a) {
+        if (a.close_approach_data.length == 0)
+          return { border: "solid 3px red", color: "red" };
+      },
+      getCloseApproachDate: function(a) {
+        return a.close_approach_data.length > 0
+          ? a.close_approach_data[0].close_approach_date
+          : "N/A";
+      },
+      fetchData: function() {
+        var key = "Vfa8EClGwkxkwfDfHTFRZpTfNgw9FTLexNUkYPx7";
+        var url = "https://api.nasa.gov/planetary/apod?api_key=" + key;
+
+        axios.get(url).then(function(res) {
+          vm.imagUrl = res.data.url;
+          vm.imgTitle = res.title;
+        });
+      },
+      getApproachablesObjects: function() {
+        var key = "Vfa8EClGwkxkwfDfHTFRZpTfNgw9FTLexNUkYPx7";
+        var url = "https://api.nasa.gov/neo/rest/v1/neo/browse?api_key=" + key;
+
+        axios.get(url).then(function(res) {
+          console.clear();
+          console.log(res);
+          vm.approachObject = res.data.near_earth_objects.splice(0, 10);
+        });
+      }
+    }
+  });
+</script>

@@ -1,0 +1,43 @@
+1) 
+v-bind:value= "email"
+or 
+:value="email"
+
+one way data binding
+
+2) 
+v-model = "email"
+two way data binding.
+
+3)
+v-on:click = "process"
+or 
+@click = "process"
+prevent page to be loaded
+@click.prevent="process"
+
+4) Databinding
+var vm = new Vuew({
+	el:"#app",
+	data:{
+	email : "mohsin.khan.jaipur"
+},
+methods : 
+process
+})
+
+5) V-if = "Submitted"
+	v-else
+
+6) v-show="Submitted
+7) v-cloak it's an attribute 
+ >use just like here
+ > it is help to solve the problem of flickering effect.
+ <div v-show="Submitted" v-cloak>
+ </div>
+
+<style>
+[v-cloak]{
+	display:none;
+}
+</style
